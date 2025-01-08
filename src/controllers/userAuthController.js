@@ -36,7 +36,7 @@ exports.signup = asyncHandler(async (req, res) => {
         user.AccountActivateExpires = undefined;
     }
 
-    // await user.save();
+    await user.save();
 
     return res.status(201).json(
         apiSuccess(
