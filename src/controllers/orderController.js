@@ -358,11 +358,12 @@ exports.createCheckout = asyncHandler(async (req, res) => {
         return {ItemName: item.product.title[getLocale(req)], Quantity: 1, UnitPrice: 1}
     });
 
-    const requestURL = 'https://apitest.myfatoorah.com/v2/SendPayment';
+    // const requestURL = 'https://apitest.myfatoorah.com/v2/SendPayment'; for testing 
+    const requestURL = 'https://api-sa.myfatoorah.com/v2/SendPayment'; 
     const requestHeader = {
         headers: {
             Accept: 'application/json',
-            Authorization: `Bearer ${process.env.PAYMENT_TOKEN}`,
+            Authorization: `Bearer ${process.env.PAYMENT_TOKEN_LIVE}`,
             'Content-Type': 'application/json'
         }
     }
@@ -404,7 +405,7 @@ exports.orderWebhookCheckout = asyncHandler(async (req, res) => {
 
     // Validate the signature
     const computedSignature = crypto
-        .createHmac('sha256', process.env.PAYMENT_TOKEN)
+        .createHmac('sha256', process.env.PAYMENT_TOKEN_LIVE)
         .update(payload)
         .digest('hex');
 
