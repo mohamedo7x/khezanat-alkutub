@@ -115,5 +115,6 @@
 	"successGetAboutUs": "تم العثور على قسم عنّا",
 	"successAddNewFeatureItem": "تمت إضافة عنصر مميز جديد بنجاح",
 	"successRemoveFeatureItem": "تمت إزالة العنصر المميز بنجاح",
-	"successGetFeatureItems": "تم العثور على العناصر المميزة"
+	"successGetFeatureItems": "تم العثور على العناصر المميزة",
+	"unavailableProductPaper": "unavailableProductPaper"
 }
