@@ -25,7 +25,7 @@ exports.signup = asyncHandler(async (req, res) => {
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `996${req.body.phone}`}],
+                    "destinations": [{"to": `${req.body.phone}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${activateCode} ${req.__("smsBodyRegister")}`
                 }
@@ -36,7 +36,7 @@ exports.signup = asyncHandler(async (req, res) => {
         user.AccountActivateExpires = undefined;
     }
 
-    await user.save();
+    // await user.save();
 
     return res.status(201).json(
         apiSuccess(
@@ -102,7 +102,7 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `996${req.body.phone}`}],
+                    "destinations": [{"to": `${req.body.phone}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${resetCode} ${req.__("smsBodyForgotPassword")}`
                 }
@@ -179,7 +179,7 @@ exports.resendCode = asyncHandler(async (req, res) => {
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `996${req.body.phone}`}],
+                    "destinations": [{"to": `${req.body.phone}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${code} ${req.__("smsBodyResendCode")}`
                 }

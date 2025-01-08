@@ -37,7 +37,7 @@ exports.signupValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^5\d{8}$/)
+        .matches(/^\d{1,4}\d{8,12}$/)
         .withMessage("please enter valid phone")
         .custom(async (val, {req}) => {
             const user = await UserModel.findOne({phone: val});
@@ -77,7 +77,7 @@ exports.verifyPhoneValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^5\d{8}$/)
+        .matches(/^\d{1,4}\d{8,12}$/)
         .withMessage("please enter valid phone"),
 
     body("activateCode")
@@ -111,7 +111,7 @@ exports.loginValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^5\d{8}$/)
+        .matches(/^\d{1,4}\d{8,12}$/)
         .withMessage("please enter valid phone"),
 
     body("password")
@@ -134,7 +134,7 @@ exports.phoneValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^5\d{8}$/)
+        .matches(/^\d{1,4}\d{8,12}$/)
         .withMessage("please enter valid phone")
         .custom(async (val, {req}) => {
             const user = await UserModel.findOne({phone: val});
@@ -150,7 +150,7 @@ exports.verifyCodeValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^5\d{8}$/)
+        .matches(/^\d{1,4}\d{8,12}$/)
         .withMessage("please enter valid phone"),
 
     body("resetCode")
@@ -183,7 +183,7 @@ exports.resetPasswordValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^5\d{8}$/)
+        .matches(/^\d{1,4}\d{8,12}$/)
         .withMessage("please enter valid phone")
         .custom(async (val, {req}) => {
             const user = await UserModel.findOne({phone: val});
