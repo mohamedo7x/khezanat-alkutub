@@ -20,12 +20,15 @@ exports.signup = asyncHandler(async (req, res) => {
         .update(activateCode)
         .digest("hex")
     user.AccountActivateExpires = Date.now() + 10 * 60 * 1000;
-
+    let phone = req.body.phone;
+    phone = phone.slice(1);
+    
     try {
+
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `${req.body.phone}`}],
+                    "destinations": [{"to": `${phone}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${activateCode} ${req.__("smsBodyRegister")}`
                 }
@@ -97,12 +100,13 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     user.passwordResetVerified = false;
 
     await user.save();
-
+    let phone = req.body.phone;
+    phone = phone.slice(1);
     try {
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `${req.body.phone}`}],
+                    "destinations": [{"to": `${phone}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${resetCode} ${req.__("smsBodyForgotPassword")}`
                 }
@@ -174,12 +178,13 @@ exports.resendCode = asyncHandler(async (req, res) => {
         .update(code)
         .digest("hex")
     user.AccountActivateExpires = Date.now() + 10 * 60 * 1000;
-
+    let phone = req.body.phone;
+    phone = phone.slice(1);
     try {
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `${req.body.phone}`}],
+                    "destinations": [{"to": `${phone}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${code} ${req.__("smsBodyResendCode")}`
                 }

@@ -37,8 +37,8 @@ exports.signupValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
-        .withMessage("please enter valid phone")
+        .matches(/^\+\d{1,4}\d{8,12}$/)
+        .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222.")
         .custom(async (val, {req}) => {
             const user = await UserModel.findOne({phone: val});
 
@@ -77,8 +77,8 @@ exports.verifyPhoneValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
-        .withMessage("please enter valid phone"),
+        .matches(/^\+\d{1,4}\d{8,12}$/)
+        .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222."),
 
     body("activateCode")
         .notEmpty()
@@ -111,8 +111,8 @@ exports.loginValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
-        .withMessage("please enter valid phone"),
+        .matches(/^\+\d{1,4}\d{8,12}$/)
+        .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222."),
 
     body("password")
         .notEmpty()
@@ -134,8 +134,8 @@ exports.phoneValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
-        .withMessage("please enter valid phone")
+        .matches(/^\+\d{1,4}\d{8,12}$/)
+        .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222.")
         .custom(async (val, {req}) => {
             const user = await UserModel.findOne({phone: val});
 
@@ -150,8 +150,8 @@ exports.verifyCodeValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
-        .withMessage("please enter valid phone"),
+        .matches(/^\+\d{1,4}\d{8,12}$/)
+        .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222."),
 
     body("resetCode")
         .notEmpty()
@@ -183,8 +183,8 @@ exports.resetPasswordValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
-        .withMessage("please enter valid phone")
+        .matches(/^\+\d{1,4}\d{8,12}$/)
+        .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222.")
         .custom(async (val, {req}) => {
             const user = await UserModel.findOne({phone: val});
             if (!user) {

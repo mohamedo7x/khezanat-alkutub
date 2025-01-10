@@ -36,7 +36,7 @@ const AuthorModel = require("../models/authorModel");
 //     body("phone")
 //         .notEmpty()
 //         .withMessage("phone must not be empty")
-//         .matches(/^\d{1,4}\d{8,12}$/)
+//         .matches(/^\+\d{1,4}\d{8,12}$/)
 //         .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222."),
 //
 //     body("birthday")
@@ -50,7 +50,7 @@ const AuthorModel = require("../models/authorModel");
 //     body("phone")
 //         .notEmpty()
 //         .withMessage("phone must not be empty")
-//         .matches(/^\d{1,4}\d{8,12}$/)
+//         .matches(/^\+\d{1,4}\d{8,12}$/)
 //         .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222."),
 //
 //     body("activateCode")
@@ -84,7 +84,7 @@ exports.loginValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
+        .matches(/^\+\d{1,4}\d{8,12}$/)
         .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222."),
 
     body("password")
@@ -107,7 +107,7 @@ exports.phoneValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
+        .matches(/^\+\d{1,4}\d{8,12}$/)
         .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222.")
         .custom(async (val, {req}) => {
             const author = await AuthorModel.findOne({phone: val});
@@ -123,7 +123,7 @@ exports.verifyCodeValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
+        .matches(/^\+\d{1,4}\d{8,12}$/)
         .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222."),
 
     body("resetCode")
@@ -156,7 +156,7 @@ exports.resetPasswordValidator = [
     body("phone")
         .notEmpty()
         .withMessage("phone must not be empty")
-        .matches(/^\d{1,4}\d{8,12}$/)
+        .matches(/^\+\d{1,4}\d{8,12}$/)
         .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222.")
         .custom(async (val, {req}) => {
             const author = await AuthorModel.findOne({phone: val});
