@@ -20,27 +20,28 @@ const AppControlModel = require("../models/appControlModel");
 exports.uploadHomeBannerImage = uploadSingleFile("image");
 
 exports.resizeHomeBannerImage = asyncHandler(async (req, res, next) => {
-    if (req.file) {
-        const outputDir = path.join(__dirname, "../../uploads/app");
-
-        const fileName = `home-banner-${Math.round(
+    if (req.file && req.file.buffer) {
+        const outputDir = path.join(__dirname, "..", "..", "uploads" , "app");
+        const fileName = `home_banner_${Math.round(
             Math.random() * 1e9
-        )}-${Date.now()}.${req.file.originalname.split(".").slice(-1)[0]}`;
-
-        if (req.file) {
+        )}_${Date.now()}.${req.file.originalname.split(".").slice(-1)[0]}`;
             try {
                 if (!fs.existsSync(outputDir)) {
-                    fs.mkdirSync(outputDir, {recursive: true});
+                   await fs.promises.mkdir(outputDir, {recursive: true});
                 }
-
+                
+                const fileNameImg = path.join(__dirname, "..", "..", "uploads" , "app");
+                const filePath = path.join(fileNameImg,fileName)
+                console.log(filePath)
+                
                 await sharp(req.file.buffer)
-                    .toFile(`uploads/app/${fileName}`);
+                .toFile(filePath);
 
                 req.body.image = fileName;
             } catch (error) {
                 return next(new ApiError(`Image processing failed: ${error.message}`, 500));
             }
-        }
+        
     }
     next();
 });
@@ -89,7 +90,10 @@ exports.addHomeBanner = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateHomeBanner = asyncHandler(async (req, res, next) => {
+    
     const {arTitle, enTitle, idTitle, zhTitle, image} = req.body;
+    const AppController = await AppControlModel.findOne({});
+    const oldImageName = AppController["homeBanner"]["image"];
 
     // Prepare update fields
     const updateFields = {
@@ -117,7 +121,7 @@ exports.updateHomeBanner = asyncHandler(async (req, res, next) => {
 
     // Delete the old image if a new one is provided
     if (image && appControl?.homeBanner?.image) {
-        const oldImagePath = path.join(__dirname, "../../uploads/app/", appControl.homeBanner.image);
+        const oldImagePath = path.join(__dirname,"..","..","uploads","app", oldImageName);
         try {
             fs.unlinkSync(oldImagePath);
         } catch (err) {
@@ -135,7 +139,6 @@ exports.updateHomeBanner = asyncHandler(async (req, res, next) => {
 
 exports.getHomeBanner = asyncHandler(async (req, res) => {
     const appControl = await AppControlModel.findOne({app: "khezanatalkutub"}, 'homeBanner');
-
     return res.status(200).json(
         apiSuccess(
             res.__("successGetHomeBanner"),
