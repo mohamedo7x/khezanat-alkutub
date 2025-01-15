@@ -313,6 +313,7 @@ exports.unsubscribeAccount = asyncHandler(async (req, res, next) => {
 });
 
 exports.addAddress = asyncHandler(async (req, res) => {
+
     const user = await UserModel.findById(req.loggedUser._id);
 
     for (let i = 0; i < user["addresses"].length; i++) {
@@ -327,11 +328,10 @@ exports.addAddress = asyncHandler(async (req, res) => {
         }
     }
 
-    await UserModel.updateOne({
-            $addToSet: {addresses: req.body},
-        },
-        {new: true}
-    )
+    await UserModel.updateOne(
+        { _id: req.loggedUser._id }, 
+        { $addToSet: { addresses: req.body } } 
+    );
 
     return res.status(201).json(
         apiSuccess(
