@@ -462,8 +462,9 @@ exports.orderData = (order, req) => {
     }
 }
 
-exports.myAllOrderData = (orders, req) => {
+exports.myAllOrderData = (orders, req , userData) => {    
     return orders.map(order => {
+        const UserShippingDetails = userData["addresses"]?.find(address => address._id.toString() == order.shippingAddress._id.toString()) || {};
         return {
             id: order._id,
             orderDate: convertTimestampToDate(order.createdAt),
@@ -474,9 +475,9 @@ exports.myAllOrderData = (orders, req) => {
                 profileImg: order.user.profileImg == null ? null : `${req.protocol}://${req.get("host")}/uploads/users/${order.user.profileImg}`,
             },
             shippingAddress: {
-                street: order.shippingAddress.street,
-                city: order.shippingAddress.city,
-                buildNumber: order.shippingAddress.buildNumber,
+                street: UserShippingDetails.street || "empty",
+                city: UserShippingDetails.city || "empty",
+                buildNumber: UserShippingDetails.buildNumber || "empty",
             },
             cartItems: order.cartItems.map(item => {
                 const showPDF = order.isPaid && order.isDelivered && item.product.isAvailablePdf && order.orderState === 'completed' && req.query.isDelivered && req.query.isPaid && req.query.orderState;

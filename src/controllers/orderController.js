@@ -100,23 +100,15 @@ exports.getMyOrders = asyncHandler(async (req, res) => {
         req.query
     ).paginate(orderCount).filter();
 
-    const {paginationResult, mongooseQuery} = apiFeatures;
+    const {paginationResult} = apiFeatures;
 
-    let orders = await mongooseQuery;
 
     const user = await UserModel.findById(req.loggedUser._id);
 
-    orders = await Promise.all(
-        orders.map(async (order) => {
-            const address = user["addresses"].find((addr) =>
-                addr._id.equals(order.shippingAddress)
-            );
-            order = order.toObject();
-            order.shippingAddress = address;
 
-            return order;
-        })
-    );
+
+    let allOrders = await OrderModel.find({user : req.loggedUser._id})
+    
 
     return res.status(200).json(
         apiSuccess(
@@ -124,7 +116,7 @@ exports.getMyOrders = asyncHandler(async (req, res) => {
             200,
             {
                 pagination: paginationResult,
-                orders: myAllOrderData(orders, req),
+                orders: myAllOrderData(allOrders, req , user),
             }
         ));
 });
@@ -340,6 +332,12 @@ exports.getAuthorOrders = asyncHandler(async (req, res) => {
 });
 
 exports.createCheckout = asyncHandler(async (req, res) => {
+
+    //-! not implemenet Yet
+    let expireDate = new Date();
+    expireDate = new Date(expireDate.getTime() + 60 * 60 * 1000); // Add 1 hour
+    expireDate = expireDate.toISOString().slice(0, 19); // Format to remove milliseconds and timezone
+
     const {cartId} = req.params;
 
     const cart = await CartModel.findById(cartId);
@@ -350,10 +348,18 @@ exports.createCheckout = asyncHandler(async (req, res) => {
     );
 
     const shippingPriceForItem = cart["shippingPrice"] /  cart.cartItems.length;
+    // res.status(200).json({
+    //     data:{
+    //         user:user,
+    //         cart:cart,
+    //     }
+    // })
+    // return 
 
     // const InvoiceItems = cart.cartItems.map((item) => {
     //     return {ItemName: item.product.title[getLocale(req)], Quantity: 1, UnitPrice: (item.price + shippingPriceForItem)}
     // });
+
     const InvoiceItems = cart.cartItems.map((item) => {
         return {ItemName: item.product.title[getLocale(req)], Quantity: 1, UnitPrice: 1}
     });
@@ -367,19 +373,40 @@ exports.createCheckout = asyncHandler(async (req, res) => {
             'Content-Type': 'application/json'
         }
     }
+
+    // const requestBody = {
+    //     CustomerName: cart["user"]["name"],
+    //     InvoiceValue: 1,
+    //     NotificationOption: 'ALL',
+    //     DisplayCurrencyIso: 'EGP',
+    //     MobileCountryCode: '+20',
+    //     CustomerMobile: cart["user"]["phone"],
+    //     CustomerEmail: cart["user"]["email"] ?? 'test@gmail.com',
+    //     // CallBackUrl: 'https://google.com',
+    //     // ErrorUrl: 'https://youtube.com',
+    //     Language: getLocale(req),
+    //     CustomerCivilId: 12345678,
+    //     CustomerAddress: {
+    //         Street: address.street,
+    //         HouseBuildingNo: address.buildNumber,
+    //         Address: address.city,
+    //     },
+    //     InvoiceItems: InvoiceItems,
+    // }
+    const total = Number(cart["totalCartPrice"]) + 0.1;
     const requestBody = {
         CustomerName: cart["user"]["name"],
-        // InvoiceValue: cart["totalCartPrice"],
-        InvoiceValue: 1,
+        InvoiceValue:total,
         NotificationOption: 'ALL',
         DisplayCurrencyIso: 'EGP',
         MobileCountryCode: '+20',
         CustomerMobile: cart["user"]["phone"],
         CustomerEmail: cart["user"]["email"] ?? 'test@gmail.com',
-        // CallBackUrl: 'https://google.com',
-        // ErrorUrl: 'https://youtube.com',
+        CallBackUrl: 'https://khezanatalkutub.com/', 
+        ErrorUrl: 'https://khezanatalkutub.com/error',
         Language: getLocale(req),
-        CustomerCivilId: 12345678,
+        CustomerCivilId: 12345678, 
+        ExpiryDate : expireDate,
         CustomerAddress: {
             Street: address.street,
             HouseBuildingNo: address.buildNumber,
@@ -387,6 +414,8 @@ exports.createCheckout = asyncHandler(async (req, res) => {
         },
         InvoiceItems: InvoiceItems,
     }
+
+
 
     const checkout = await axios.post(requestURL, requestBody, requestHeader);
 
