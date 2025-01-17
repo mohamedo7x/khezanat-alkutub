@@ -1,5 +1,5 @@
 const EventEmitter = require("events");
-
+const parsePhoneNumber = require("libphonenumber-js")
 const axios = require('axios');
 
 const asyncHandler = require("../middlewares/asyncHandler");
@@ -332,39 +332,28 @@ exports.getAuthorOrders = asyncHandler(async (req, res) => {
 });
 
 exports.createCheckout = asyncHandler(async (req, res) => {
-
     //-! not implemenet Yet
-    let expireDate = new Date();
-    expireDate = new Date(expireDate.getTime() + 60 * 60 * 1000); // Add 1 hour
-    expireDate = expireDate.toISOString().slice(0, 19); // Format to remove milliseconds and timezone
-
     const {cartId} = req.params;
 
     const cart = await CartModel.findById(cartId);
     const user = await UserModel.findById(req.loggedUser._id);
-
-    const address = user["addresses"].find((addr) =>
-        addr._id.equals(req.body.shippingAddress)
-    );
-
-    const shippingPriceForItem = cart["shippingPrice"] /  cart.cartItems.length;
-    // res.status(200).json({
-    //     data:{
-    //         user:user,
-    //         cart:cart,
-    //     }
-    // })
-    // return 
-
-    // const InvoiceItems = cart.cartItems.map((item) => {
-    //     return {ItemName: item.product.title[getLocale(req)], Quantity: 1, UnitPrice: (item.price + shippingPriceForItem)}
-    // });
-
-    const InvoiceItems = cart.cartItems.map((item) => {
-        return {ItemName: item.product.title[getLocale(req)], Quantity: 1, UnitPrice: 1}
+    
+    const address = user["addresses"].find(addr => {
+        addr._id.toString().trim() === req.body.shippingAddress.toString().trim()
+        return {
+            ...addr
+        }    
     });
 
-    // const requestURL = 'https://apitest.myfatoorah.com/v2/SendPayment'; for testing 
+    const shippingPriceForItem = cart["shippingPrice"] /  cart.cartItems.length;
+
+
+    const InvoiceItems = cart.cartItems.map((item) => {
+        return {ItemName: item.product.title[getLocale(req)], Quantity: 1, UnitPrice: (item.price + shippingPriceForItem)}
+    });
+
+
+    // const requestURL = 'https://apitest.myfatoorah.com/v2/SendPayment'; for testing
     const requestURL = 'https://api-sa.myfatoorah.com/v2/SendPayment'; 
     const requestHeader = {
         headers: {
@@ -373,40 +362,19 @@ exports.createCheckout = asyncHandler(async (req, res) => {
             'Content-Type': 'application/json'
         }
     }
+    let phone_number = parsePhoneNumber(cart["user"]["phone"]);
 
-    // const requestBody = {
-    //     CustomerName: cart["user"]["name"],
-    //     InvoiceValue: 1,
-    //     NotificationOption: 'ALL',
-    //     DisplayCurrencyIso: 'EGP',
-    //     MobileCountryCode: '+20',
-    //     CustomerMobile: cart["user"]["phone"],
-    //     CustomerEmail: cart["user"]["email"] ?? 'test@gmail.com',
-    //     // CallBackUrl: 'https://google.com',
-    //     // ErrorUrl: 'https://youtube.com',
-    //     Language: getLocale(req),
-    //     CustomerCivilId: 12345678,
-    //     CustomerAddress: {
-    //         Street: address.street,
-    //         HouseBuildingNo: address.buildNumber,
-    //         Address: address.city,
-    //     },
-    //     InvoiceItems: InvoiceItems,
-    // }
-    const total = Number(cart["totalCartPrice"]) + 0.1;
     const requestBody = {
         CustomerName: cart["user"]["name"],
-        InvoiceValue:total,
+        InvoiceValue: +cart["totalCartPrice"],
         NotificationOption: 'ALL',
-        DisplayCurrencyIso: 'EGP',
-        MobileCountryCode: '+20',
-        CustomerMobile: cart["user"]["phone"],
-        CustomerEmail: cart["user"]["email"] ?? 'test@gmail.com',
+        DisplayCurrencyIso: 'SAR',
+        MobileCountryCode: `+${phone_number.countryCallingCode}`,
+        CustomerMobile: phone_number.nationalNumber,
+        CustomerEmail: cart["user"]["email"] ?? 'empty@empty.em',
         CallBackUrl: 'https://khezanatalkutub.com/', 
         ErrorUrl: 'https://khezanatalkutub.com/error',
         Language: getLocale(req),
-        CustomerCivilId: 12345678, 
-        ExpiryDate : expireDate,
         CustomerAddress: {
             Street: address.street,
             HouseBuildingNo: address.buildNumber,
@@ -415,10 +383,7 @@ exports.createCheckout = asyncHandler(async (req, res) => {
         InvoiceItems: InvoiceItems,
     }
 
-
-
     const checkout = await axios.post(requestURL, requestBody, requestHeader);
-
     return res.status(200).json(
         apiSuccess(
             "Checkout Success",
