@@ -602,9 +602,9 @@ exports.allOrderData = (orders, req) => {
                 profileImg: order.user.profileImg == null ? null : `${req.protocol}://${req.get("host")}/uploads/users/${order.user.profileImg}`,
             },
             shippingAddress: {
-                street: order.shippingAddress.street,
-                city: order.shippingAddress.city,
-                buildNumber: order.shippingAddress.buildNumber,
+                street: order.shippingAddress?.street,
+                city: order.shippingAddress?.city,
+                buildNumber: order.shippingAddress?.buildNumber,
             },
             cartItems: order.cartItems.map(item => {
                 return {
