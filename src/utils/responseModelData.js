@@ -480,7 +480,7 @@ exports.myAllOrderData = (orders, req , userData) => {
                 buildNumber: UserShippingDetails.buildNumber || "empty",
             },
             cartItems: order.cartItems.map(item => {
-                const showPDF = order.isPaid && order.isDelivered && item.product.isAvailablePdf && order.orderState === 'completed' && req.query.isDelivered && req.query.isPaid && req.query.orderState;
+                const showPDF = order.isPaid && item.product.isAvailablePdf && order.orderState === 'completed' && req.query.isDelivered && req.query.isPaid && req.query.orderState;
                 return {
                     product: {
                         id: item.product._id,
