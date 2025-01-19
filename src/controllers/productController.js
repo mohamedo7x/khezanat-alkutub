@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require("path");
-
+const {getDetailsOfPDF,convertTextToAudio,convertPdfToText} = require('../utils/oldAudioConvert');
 const sharp = require("sharp");
 
 const asyncHandler = require("../middlewares/asyncHandler");
@@ -53,7 +53,7 @@ exports.resizeProductCoverImage = asyncHandler(async (req, res, next) => {
     next();
 });
 
-exports.resizeProductPdfFile = asyncHandler(async (req, res, next) => {
+exports.resizeProductPdfFile = asyncHandler(async (req, res, next) => { 
     if (req.files.pdfFile) {
         const file = req.files.pdfFile;
         if (!file[0].mimetype.startsWith("application/pdf")) {
@@ -62,19 +62,32 @@ exports.resizeProductPdfFile = asyncHandler(async (req, res, next) => {
         }
 
         const outputDir = path.join(__dirname, "../../uploads/products/pdfs");
+        const outputDirAudio = path.join(__dirname, "../../uploads/products/audio");
+        
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, {recursive: true});
         }
 
+        if (!fs.existsSync(outputDirAudio)) {
+            fs.mkdirSync(outputDirAudio, {recursive: true});
+        }
+
         const fileName = `product-${Math.round(Math.random() * 1e9)}-${Date.now()}-pdf.pdf`;
+        const pdfAudio = `product-${Math.round(Math.random() * 1e9)}-${Date.now()}-audio.mp3`;
 
         try {
             const pdfFilePath = path.join(outputDir, fileName);
+            const pdfAudioPath = path.join(outputDirAudio, pdfAudio);
+
             fs.writeFile(pdfFilePath, req.files.pdfFile[0].buffer, (err) => {
                 if (err) return next(new ApiError(`Error writing PDF file: ${err.message}`, 500));
             });
-
+            if(req.body.audio.toString() === 'true'){
+                const textOfPdf = await convertPdfToText(req.files.pdfFile[0].buffer);
+                convertTextToAudio(textOfPdf ,req.body.pdfLang ,pdfAudioPath , fileName , pdfAudio);
+            }
             req.body.pdfFile = fileName;
+            // req.body.pdfAudioFile = pdfAudio;
         } catch (error) {
             return next(new ApiError(`PDF processing failed: ${error.message}`, 500));
         }
@@ -106,6 +119,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
         pricePdf: req.body.pricePdf,
         pricePaper: req.body.pricePaper,
         stock: req.body.stock,
+        pdfAudio:'temp'
     });
 
     return res.status(201).json(

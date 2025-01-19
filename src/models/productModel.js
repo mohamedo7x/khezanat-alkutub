@@ -101,6 +101,10 @@ const productSchema = new mongoose.Schema({
         ref: "author",
     },
     pdfFile: String,
+    pdfAudio : {
+        type:String,
+        default:"empty" // backword compatable 
+    }
 }, {timestamps: true});
 
 productSchema.pre(/^find/, function (next) {

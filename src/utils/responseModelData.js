@@ -490,6 +490,7 @@ exports.myAllOrderData = (orders, req , userData) => {
                         categoryImage: `${req.protocol}://${req.get("host")}/uploads/categories/${item.product.category.image}`,
                         coverImage: item.product.coverImage == null ? null : `${req.protocol}://${req.get("host")}/uploads/products/${item.product.coverImage}`,
                         pdfFile: showPDF ? item.product.pdfFile == null ? null : `${req.protocol}://${req.get("host")}/uploads/products/pdfs/${item.product.pdfFile}` : undefined,
+                        pdfAudio : showPDF ? item.product.pdfAudio == 'temp' ? null : `${req.protocol}://${req.get("host")}/uploads/products/audio/${item.product.pdfAudio}` : undefined,
                         isAvailablePdf: item.product.isAvailablePdf,
                         isAvailablePaper: item.product.isAvailablePaper,
                         pricePdf: item.product.pricePdf ?? null,

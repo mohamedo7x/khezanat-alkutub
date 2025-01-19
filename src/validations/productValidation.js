@@ -6,6 +6,15 @@ const AuthorModel = require("../models/authorModel");
 const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderModel");
 
+
+const supportedLanguages = [
+    'af', 'sq', 'ar', 'hy', 'ca', 'zh', 'zh-cn', 'zh-tw', 'zh-yue', 'hr', 'cs', 'da', 'nl', 
+    'en', 'en-au', 'en-uk', 'en-us', 'eo', 'fi', 'fr', 'de', 'el', 'ht', 'hi', 'hu', 'is', 
+    'id', 'it', 'ja', 'ko', 'la', 'lv', 'mk', 'no', 'pl', 'pt', 'pt-br', 'ro', 'ru', 'sr', 
+    'sk', 'es', 'es-es', 'es-us', 'sw', 'sv', 'ta', 'th', 'tr', 'vi', 'cy'
+];
+
+
 exports.createProductValidation = [
     body("arTitle")
         .notEmpty()
@@ -122,6 +131,11 @@ exports.createProductValidation = [
                 }
             })
         ),
+    body('pdfLang')
+        .notEmpty()
+        .withMessage('Please enter the language of this PDF')
+        .isIn(supportedLanguages)
+        .withMessage('The provided language is not supported. Please provide a valid language code.'),
 ];
 
 exports.checkProductValidation = [
