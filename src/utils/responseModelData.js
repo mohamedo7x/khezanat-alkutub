@@ -230,6 +230,7 @@ exports.allProductData = (products, req) => {
 
 exports.allProductWithWishlistData = (products, wishlistProducts, req) => {
     return products.map((product) => {
+        let isPdfHaveAudio = product.pdfAudio.toString() !== "temp";
         return {
             id: product._id,
             title: product.title[getLocale(req)] ?? req.__("undefinedData"),
@@ -241,6 +242,7 @@ exports.allProductWithWishlistData = (products, wishlistProducts, req) => {
             isAvailablePaper: product.isAvailablePaper,
             pricePdf: product.pricePdf ?? null,
             pricePaper: product.pricePaper ?? null,
+            pdfAudio : isPdfHaveAudio ? "true" : "false",
             numberOfSalePdf: product.numberOfSalePdf,
             numberOfSalePaper: product.numberOfSalePaper,
             rate: product.rate,
