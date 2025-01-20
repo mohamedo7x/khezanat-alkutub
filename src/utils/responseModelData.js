@@ -202,6 +202,7 @@ exports.categoryDataNoLang = (category, req) => {
 
 exports.allProductData = (products, req) => {
     return products.map((product) => {
+        let pdfAudioValid = product.pdfAudio.toString() !== 'temp';
         return {
             id: product._id,
             title: product.title[getLocale(req)] ?? req.__("undefinedData"),
@@ -212,6 +213,7 @@ exports.allProductData = (products, req) => {
             isAvailablePdf: product.isAvailablePdf,
             isAvailablePaper: product.isAvailablePaper,
             pricePdf: product.pricePdf ?? null,
+            pdfAudio : pdfAudioValid ? "true" : "false",
             pricePaper: product.pricePaper ?? null,
             numberOfSalePdf: product.numberOfSalePdf,
             numberOfSalePaper: product.numberOfSalePaper,
