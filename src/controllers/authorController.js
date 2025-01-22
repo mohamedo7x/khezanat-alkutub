@@ -279,22 +279,21 @@ exports.uploadAuthorFormProfileImage = uploadSingleFile("profileImg");
 exports.resizeAuthorFormProfileImage = asyncHandler(async (req, res, next) => {
     const outputDir = path.join(__dirname, "../../uploads/users/authorForm");
 
-    const fileName = `author-form-${Math.round(
-        Math.random() * 1e9
-    )}-${Date.now()}.png`;
+    const fileName = `author-form-${Date.now()}-${Math.round(Math.random() * 1e9)}.png`;
 
     if (req.file) {
         try {
             if (!fs.existsSync(outputDir)) {
                 fs.mkdirSync(outputDir, {recursive: true});
             }
-
+            const mainPath = path.join(__dirname, ".." , ".." , "uploads" , "users" , "authorForm" , fileName.toString());
+            console.log(mainPath)
             await sharp(req.file.buffer)
                 .toFormat("png")
                 .png({quality: 90})
-                .toFile(`uploads/users/authorForm/${fileName}`);
+                .toFile(mainPath);
 
-            req.body.profileImg = fileName;
+            req.body.profileImg = fileName.toString();
         } catch (error) {
             return next(new ApiError(`Image processing failed: ${error.message}`, 500));
         }
@@ -323,14 +322,14 @@ exports.formCreateAuthor = asyncHandler(async (req, res) => {
 exports.confirmCreateAuthor = asyncHandler(async (req, res) => {
     const {id} = req.params
 
-    const author = await CreateAuthorFormModel.findByIdAndDelete(id);
-
+    
+    const author = await CreateAuthorFormModel.findOne({_id:id});
 
     if (author.profileImg) {
         const filePath = path.join(__dirname, "../../uploads/users/authorForm/", author.profileImg);
-        await fs.unlinkSync(filePath);
+         fs.unlinkSync(filePath);
     }
-
+    await CreateAuthorFormModel.findByIdAndDelete(id);
     return res.status(200).json(
         apiSuccess(
             res.__("successConfirmCreateAuthor"),

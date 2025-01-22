@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-
+const {sendSMSInfobip} = require('../middlewares/sendSMSInfobip')
 const bcrypt = require("bcryptjs");
 
 const asyncHandler = require("../middlewares/asyncHandler");
@@ -145,9 +145,19 @@ exports.resendCode = asyncHandler(async (req, res, next) => {
         .update(code)
         .digest("hex")
     author.AccountActivateExpires = Date.now() + 10 * 60 * 1000;
-
+    await author.save();
     try {
-        // todo: send sms message
+        let phone = req.body.phone;
+        phone = phone.slice(1);
+        await sendSMSInfobip({
+            "messages": [
+                {
+                    "destinations": [{"to": `${phone}`}],
+                    "from": "Khezanat-Alkutub",
+                    "text": `${code} ${req.__("smsBodyResendCode")}`
+                }
+            ]
+        });
     } catch (error) {
         author.accountActivateCode = undefined;
         author.AccountActivateExpires = undefined;

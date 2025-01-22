@@ -18,8 +18,7 @@ const createAuthorFormSchema = new mongoose.Schema({
         unique: true,
     },
     profileImg: {
-        public_id: String,
-        secure_url: String,
+        type:String
     },
     birthday: String,
     gender: {
