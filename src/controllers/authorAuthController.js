@@ -84,7 +84,17 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     await author.save();
 
     try {
-        // todo: send sms message
+        let phone = req.body.phone;
+        phone = phone.slice(1);
+        await sendSMSInfobip({
+            "messages": [
+                {
+                    "destinations": [{"to": `${phone}`}],
+                    "from": "Khezanat-Alkutub",
+                    "text": `${resetCode} ${req.__("smsBodyResendCode")}`
+                }
+            ]
+        });
     } catch (error) {
         author.passwordResetCode = undefined;
         author.passwordResetExpires = undefined;
