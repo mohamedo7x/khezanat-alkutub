@@ -601,55 +601,65 @@ exports.allOrderData = (orders, req) => {
             id: order._id,
             orderDate: convertTimestampToDate(order.createdAt),
             user: {
-                id: order.user._id,
-                name: order.user.name,
-                phone: order.user.phone,
-                profileImg: order.user.profileImg == null ? null : `${req.protocol}://${req.get("host")}/uploads/users/${order.user.profileImg}`,
+                id: order.user?._id ?? null,
+                name: order.user?.name ?? null,
+                phone: order.user?.phone ?? null,
+                profileImg: order.user?.profileImg 
+                    ? `${req.protocol}://${req.get("host")}/uploads/users/${order.user.profileImg}` 
+                    : null,
             },
             shippingAddress: {
-                street: order.shippingAddress?.street,
-                city: order.shippingAddress?.city,
-                buildNumber: order.shippingAddress?.buildNumber,
+                street: order.shippingAddress?.street ?? null,
+                city: order.shippingAddress?.city ?? null,
+                buildNumber: order.shippingAddress?.buildNumber ?? null,
             },
-            cartItems: order.cartItems.map(item => {
+            cartItems: order.cartItems?.map(item => {
                 return {
                     product: {
-                        id: item.product._id,
-                        title: item.product.title[getLocale(req)] ?? req.__("undefinedData"),
-                        description: item.product.description[getLocale(req)] ?? req.__("undefinedData"),
-                        category: item.product.category.title[getLocale(req)] ?? req.__("undefinedData"),
-                        categoryImage: `${req.protocol}://${req.get("host")}/uploads/categories/${item.product.category.image}`,
-                        coverImage: item.product.coverImage == null ? null : `${req.protocol}://${req.get("host")}/uploads/products/${item.product.coverImage}`,
-                        isAvailablePdf: item.product.isAvailablePdf,
-                        isAvailablePaper: item.product.isAvailablePaper,
-                        pricePdf: item.product.pricePdf ?? null,
-                        pricePaper: item.product.pricePaper ?? null,
-                        rate: item.product.rate,
-                        author: item.product.author == null ? null : {
-                            id: item.product.author._id,
-                            name: item.product.author.name,
-                            bio: item.product.author.bio,
-                            profileImg: item.product.author.profileImg == null ? null : `${req.protocol}://${req.get("host")}/uploads/users/${item.product.author.profileImg}`,
-                        },
+                        id: item.product?._id ?? null,
+                        title: item.product?.title?.[getLocale(req)] ?? req.__("undefinedData"),
+                        description: item.product?.description?.[getLocale(req)] ?? req.__("undefinedData"),
+                        category: item.product?.category?.title?.[getLocale(req)] ?? req.__("undefinedData"),
+                        categoryImage: item.product?.category?.image
+                            ? `${req.protocol}://${req.get("host")}/uploads/categories/${item.product.category.image}`
+                            : null,
+                        coverImage: item.product?.coverImage 
+                            ? `${req.protocol}://${req.get("host")}/uploads/products/${item.product.coverImage}` 
+                            : null,
+                        isAvailablePdf: item.product?.isAvailablePdf ?? false,
+                        isAvailablePaper: item.product?.isAvailablePaper ?? false,
+                        pricePdf: item.product?.pricePdf ?? null,
+                        pricePaper: item.product?.pricePaper ?? null,
+                        rate: item.product?.rate ?? null,
+                        author: item.product?.author 
+                            ? {
+                                id: item.product.author._id ?? null,
+                                name: item.product.author.name ?? null,
+                                bio: item.product.author.bio ?? null,
+                                profileImg: item.product.author.profileImg 
+                                    ? `${req.protocol}://${req.get("host")}/uploads/users/${item.product.author.profileImg}` 
+                                    : null,
+                            } 
+                            : null,
                     },
-                    price: item.price,
-                    isAvailablePdf: item.isAvailablePdf,
-                    isAvailablePaper: item.isAvailablePaper,
+                    price: item.price ?? 0,
+                    isAvailablePdf: item.isAvailablePdf ?? false,
+                    isAvailablePaper: item.isAvailablePaper ?? false,
                 };
-            }),
-            totalProductPrice: order.totalProductPrice,
-            shippingPrice: order.shippingPrice,
-            totalPrice: order.totalOrderPrice,
-            currency: order.currency,
-            paymentMethodType: order.paymentMethodType,
-            isPaid: order.isPaid,
+            }) ?? [],
+            totalProductPrice: order.totalProductPrice ?? 0,
+            shippingPrice: order.shippingPrice ?? 0,
+            totalPrice: order.totalOrderPrice ?? 0,
+            currency: order.currency ?? "USD",
+            paymentMethodType: order.paymentMethodType ?? null,
+            isPaid: order.isPaid ?? false,
             paidAt: order.paidAt ?? null,
-            isDelivered: order.isDelivered,
+            isDelivered: order.isDelivered ?? false,
             deliveredAt: order.deliveredAt ?? null,
-            orderState: order.orderState,
+            orderState: order.orderState ?? null,
         }
     });
-}
+};
 
 exports.allRequestBooksData = (requestBooks, req) => {
     return requestBooks.map(requestBook => {
