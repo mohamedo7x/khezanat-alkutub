@@ -9,8 +9,6 @@ const createAuthorFormSchema = new mongoose.Schema({
     bio: {
         type: String,
         required: [true, "bio is required"],
-        minLength: [50, "too short bio"],
-        maxLength: [500, "too long bio"],
     },
     phone: {
         type: String,

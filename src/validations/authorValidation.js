@@ -161,27 +161,21 @@ exports.formCreateAuthorValidator = [
         .isLength({min: 3})
         .withMessage("name too short"),
 
-    body("bio")
-        .notEmpty()
-        .withMessage("name must not be empty")
-        .isLength({min: 50, max: 500})
-        .withMessage("bio range must be between 50 and 500 characters"),
+    // body("bio")
+    //     .notEmpty()
+    //     .withMessage("name must not be empty")
+    //     .isLength({min: 50, max: 500})
+    //     .withMessage("bio range must be between 50 and 500 characters"),
 
     body("phone")
         .notEmpty()
-        .withMessage("phone must not be empty")
-        .matches(/^\+\d{1,4}\d{8,12}$/)
-        .withMessage("Invalid phone number. A valid phone number must start with a country code (1-4 digits) followed by 8-12 digits.\n For example, 201011511111 or 9660508222222."),
+        .withMessage("phone must not be empty"),
 
     body("birthday")
         .notEmpty()
         .withMessage("birthday must not be empty")
         .matches(/^\d{1,2}-\d{1,2}-\d{4}/)
         .withMessage("please enter valid date match as (dd-mm-yyyy)"),
-
-    body("profileImg")
-        .notEmpty()
-        .withMessage("profile Image is required"),
 
     body("gender")
         .optional()

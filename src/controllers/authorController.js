@@ -304,9 +304,9 @@ exports.resizeAuthorFormProfileImage = asyncHandler(async (req, res, next) => {
 exports.formCreateAuthor = asyncHandler(async (req, res) => {
     await CreateAuthorFormModel.create({
         name: req.body.name,
-        bio: req.body.bio,
+        bio: req.body.bio || "empty bio",
         phone: req.body.phone,
-        profileImg: req.body.profileImg,
+        profileImg: req.body.profileImg || "dummy.jpeg",
         birthday: req.body.birthday,
         gender: req.body.gender,
     });
@@ -325,10 +325,10 @@ exports.confirmCreateAuthor = asyncHandler(async (req, res) => {
     
     const author = await CreateAuthorFormModel.findOne({_id:id});
 
-    if (author.profileImg) {
-        const filePath = path.join(__dirname, "../../uploads/users/authorForm/", author.profileImg);
-         fs.unlinkSync(filePath);
-    }
+    // if (author.profileImg !== "empty") {
+    //     const filePath = path.join(__dirname, "../../uploads/users/authorForm/", author.profileImg);
+    //      fs.unlinkSync(filePath);
+    // }
     await CreateAuthorFormModel.findByIdAndDelete(id);
     return res.status(200).json(
         apiSuccess(
