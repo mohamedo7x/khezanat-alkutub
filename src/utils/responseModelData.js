@@ -466,66 +466,69 @@ exports.orderData = (order, req) => {
     }
 }
 
-exports.myAllOrderData = (orders, req , userData) => {    
+exports.myAllOrderData = (orders, req, userData) => {
     return orders.map(order => {
-        const UserShippingDetails = userData["addresses"]?.find(address => address._id.toString() == order.shippingAddress._id.toString()) || {};
+        if (order?.orderState !== 'completed') {
+            return {};
+        }
+
+        const UserShippingDetails = userData["addresses"]?.find(address => address?._id?.toString() === order?.shippingAddress?._id?.toString()) || {};
         return {
-            id: order._id,
-            orderDate: convertTimestampToDate(order.createdAt),
+            id: order?._id ?? null,
+            orderDate: convertTimestampToDate(order?.createdAt) ?? "N/A",
             user: {
-                id: order.user._id,
-                name: order.user.name,
-                phone: order.user.phone,
-                profileImg: order.user.profileImg == null ? null : `${req.protocol}://${req.get("host")}/uploads/users/${order.user.profileImg}`,
+                id: order?.user?._id ?? null,
+                name: order?.user?.name ?? "Unknown",
+                phone: order?.user?.phone ?? "Unknown",
+                profileImg: order?.user?.profileImg == null ? null : `${req.protocol}://${req.get("host")}/uploads/users/${order.user.profileImg}`,
             },
             shippingAddress: {
-                street: UserShippingDetails.street || "empty",
-                city: UserShippingDetails.city || "empty",
-                buildNumber: UserShippingDetails.buildNumber || "empty",
+                street: UserShippingDetails?.street ?? "empty",
+                city: UserShippingDetails?.city ?? "empty",
+                buildNumber: UserShippingDetails?.buildNumber ?? "empty",
             },
-            cartItems: order.cartItems.map(item => {
-                const showPDF = order.isPaid && item.product.isAvailablePdf && order.orderState === 'completed' && req.query.isDelivered && req.query.isPaid && req.query.orderState;
+            cartItems: order?.cartItems?.map(item => {
+                const showPDF = order?.isPaid && item?.product?.isAvailablePdf && order?.orderState === 'completed' && req.query.isDelivered && req.query.isPaid && req.query.orderState;
                 return {
                     product: {
-                        id: item.product._id,
-                        title: item.product.title[getLocale(req)] ?? req.__("undefinedData"),
-                        description: item.product.description[getLocale(req)] ?? req.__("undefinedData"),
-                        category: item.product.category.title[getLocale(req)] ?? req.__("undefinedData"),
-                        categoryImage: `${req.protocol}://${req.get("host")}/uploads/categories/${item.product.category.image}`,
-                        coverImage: item.product.coverImage == null ? null : `${req.protocol}://${req.get("host")}/uploads/products/${item.product.coverImage}`,
-                        pdfFile: showPDF ? item.product.pdfFile == null ? null : `${req.protocol}://${req.get("host")}/uploads/products/pdfs/${item.product.pdfFile}` : undefined,
-                        pdfAudio : showPDF ? item.product.pdfAudio == 'temp' ? null : `${req.protocol}://${req.get("host")}/uploads/products/audio/${item.product.pdfAudio}` : undefined,
-                        isAvailablePdf: item.product.isAvailablePdf,
-                        isAvailablePaper: item.product.isAvailablePaper,
-                        pricePdf: item.product.pricePdf ?? null,
-                        pricePaper: item.product.pricePaper ?? null,
-                        rate: item.product.rate,
-                        author: item.product.author == null ? null : {
-                            id: item.product.author._id,
-                            name: item.product.author.name,
-                            bio: item.product.author.bio,
-                            profileImg: item.product.author.profileImg == null ? null : `${req.protocol}://${req.get("host")}/uploads/users/${item.product.author.profileImg}`,
+                        id: item?.product?._id ?? null,
+                        title: item?.product?.title?.[getLocale(req)] ?? req.__("undefinedData"),
+                        description: item?.product?.description?.[getLocale(req)] ?? req.__("undefinedData"),
+                        category: item?.product?.category?.title?.[getLocale(req)] ?? req.__("undefinedData"),
+                        categoryImage: item?.product?.category?.image == null ? null : `${req.protocol}://${req.get("host")}/uploads/categories/${item.product.category.image}`,
+                        coverImage: item?.product?.coverImage == null ? null : `${req.protocol}://${req.get("host")}/uploads/products/${item.product.coverImage}`,
+                        pdfFile: showPDF ? (item?.product?.pdfFile == null ? null : `${req.protocol}://${req.get("host")}/uploads/products/pdfs/${item.product.pdfFile}`) : undefined,
+                        pdfAudio: showPDF ? (item?.product?.pdfAudio === 'temp' ? null : `${req.protocol}://${req.get("host")}/uploads/products/audio/${item.product.pdfAudio}`) : undefined,
+                        isAvailablePdf: item?.product?.isAvailablePdf ?? false,
+                        isAvailablePaper: item?.product?.isAvailablePaper ?? false,
+                        pricePdf: item?.product?.pricePdf ?? null,
+                        pricePaper: item?.product?.pricePaper ?? null,
+                        rate: item?.product?.rate ?? 0,
+                        author: item?.product?.author == null ? null : {
+                            id: item?.product?.author?._id ?? null,
+                            name: item?.product?.author?.name ?? "Unknown",
+                            bio: item?.product?.author?.bio ?? "No bio available",
+                            profileImg: item?.product?.author?.profileImg == null ? null : `${req.protocol}://${req.get("host")}/uploads/users/${item.product.author.profileImg}`,
                         },
                     },
-                    price: item.price,
-                    isAvailablePdf: item.isAvailablePdf,
-                    isAvailablePaper: item.isAvailablePaper,
+                    price: item?.price ?? 0,
+                    isAvailablePdf: item?.isAvailablePdf ?? false,
+                    isAvailablePaper: item?.isAvailablePaper ?? false,
                 };
-            }),
-            totalProductPrice: order.totalProductPrice,
-            shippingPrice: order.shippingPrice,
-            totalPrice: order.totalOrderPrice,
-            currency: order.currency,
-            paymentMethodType: order.paymentMethodType,
-            isPaid: order.isPaid,
-            paidAt: order.paidAt ?? null,
-            isDelivered: order.isDelivered,
-            deliveredAt: order.deliveredAt ?? null,
-            orderState: order.orderState,
-        }
+            }) ?? [],
+            totalProductPrice: order?.totalProductPrice ?? 0,
+            shippingPrice: order?.shippingPrice ?? 0,
+            totalPrice: order?.totalOrderPrice ?? 0,
+            currency: order?.currency ?? "USD",
+            paymentMethodType: order?.paymentMethodType ?? "Unknown",
+            isPaid: order?.isPaid ?? false,
+            paidAt: order?.paidAt ?? null,
+            isDelivered: order?.isDelivered ?? false,
+            deliveredAt: order?.deliveredAt ?? null,
+            orderState: order?.orderState ?? "Unknown",
+        };
     });
-}
-
+};
 exports.myOrderData = (order, req) => {
     return {
         id: order._id,
@@ -542,7 +545,8 @@ exports.myOrderData = (order, req) => {
             buildNumber: order.shippingAddress.buildNumber,
         },
         cartItems: order.cartItems.map(item => {
-            const showPDF = order.isPaid && order.isDelivered && item.product.isAvailablePdf && order.orderState === 'completed' && req.query.isDelivered && req.query.isPaid && req.query.orderState;
+            const showPDF = order.orderState === 'completed';
+            if(!showPDF) return {product}
             return {
                 product: {
                     id: item.product._id,
