@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const {sendSMSInfobip} = require('../middlewares/sendSMSInfobip')
 const bcrypt = require("bcryptjs");
-
+const parsePhone = require('libphonenumber-js')
 const asyncHandler = require("../middlewares/asyncHandler");
 const generateJWT = require("../utils/generateJWT");
 const apiSuccess = require("../utils/apiSuccess");
@@ -84,12 +84,11 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     await author.save();
 
     try {
-        let phone = req.body.phone;
-        phone = phone.slice(1);
+        let phone = parsePhone(req.body.phone);
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `${phone}`}],
+                    "destinations": [{"to": `${phone.countryCallingCode}${phone.nationalNumber}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${resetCode} ${req.__("smsBodyResendCode")}`
                 }
@@ -157,12 +156,11 @@ exports.resendCode = asyncHandler(async (req, res, next) => {
     author.AccountActivateExpires = Date.now() + 10 * 60 * 1000;
     await author.save();
     try {
-        let phone = req.body.phone;
-        phone = phone.slice(1);
+        let phone = parsePhone(req.body.phone);
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `${phone}`}],
+                    "destinations": [{"to": `${phone.countryCallingCode}${phone.nationalNumber}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${code} ${req.__("smsBodyResendCode")}`
                 }
