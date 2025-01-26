@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-
+const parsePhone = require("libphonenumber-js")
 const bcrypt = require("bcryptjs");
 
 const asyncHandler = require("../middlewares/asyncHandler");
@@ -20,15 +20,13 @@ exports.signup = asyncHandler(async (req, res) => {
         .update(activateCode)
         .digest("hex")
     user.AccountActivateExpires = Date.now() + 10 * 60 * 1000;
-    let phone = req.body.phone;
-    phone = phone.slice(1);
-    
+    let phone = parsePhone(req.body.phone);
     try {
 
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `${phone}`}],
+                    "destinations": [{"to": `${phone.countryCallingCode}${phone.nationalNumber}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${activateCode} ${req.__("smsBodyRegister")}`
                 }
@@ -100,13 +98,12 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     user.passwordResetVerified = false;
 
     await user.save();
-    let phone = req.body.phone;
-    phone = phone.slice(1);
+    let phone = parsePhone(req.body.phone);
     try {
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `${phone}`}],
+                    "destinations": [{"to": `${phone.countryCallingCode}${phone.nationalNumber}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${resetCode} ${req.__("smsBodyForgotPassword")}`
                 }
@@ -178,13 +175,12 @@ exports.resendCode = asyncHandler(async (req, res) => {
         .update(code)
         .digest("hex")
     user.AccountActivateExpires = Date.now() + 10 * 60 * 1000;
-    let phone = req.body.phone;
-    phone = phone.slice(1);
+    let phone = parsePhone(req.body.phone);
     try {
         await sendSMSInfobip({
             "messages": [
                 {
-                    "destinations": [{"to": `${phone}`}],
+                    "destinations": [{"to": `${phone.countryCallingCode}${phone.nationalNumber}`}],
                     "from": "Khezanat-Alkutub",
                     "text": `${code} ${req.__("smsBodyResendCode")}`
                 }
