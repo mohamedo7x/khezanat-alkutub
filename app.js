@@ -1,5 +1,6 @@
 const path = require("path");
-
+const cron = require("node-cron")
+const User = require('./src/models/userModel')
 const dotenv = require("dotenv");
 const dbConnection = require("./config/dbConnection");
 const cors = require("cors");
@@ -87,7 +88,14 @@ mountRoutes(app);
 app.get("/api/v1", (req, res) => {
     res.send(`<h1>Welcome In Khezanat Alkutub App</h1>`);
 });
-
+cron.schedule('*/60 * * * *' , async()=>{
+    const twoMinutesAgo = new Date(Date.now() - 60 * 60 * 1000); 
+    await User.deleteMany({
+        accountActive:false,
+        createdAt :{$lte : twoMinutesAgo }
+    });
+    
+})
 app.all("*", (req, res, next) => {
     next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));
 });
