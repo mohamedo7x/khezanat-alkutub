@@ -31,10 +31,10 @@ exports.subscribeValidation = [
                 return Promise.reject(new ApiError(`no subscription plan for this id ${val}`, 404));
             }
 
-            if (val === '676a9a598d28c651357217c3') {
+            if (val === '67a24c8b4c9399dd5c5f037d') {
                 return Promise.reject(new ApiError(`this is default subscription`, 400));
-            }
-
+            } 
+            //ok
             return true;
         }),
 ];

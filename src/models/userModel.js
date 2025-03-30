@@ -66,7 +66,7 @@ const userSchema = new mongoose.Schema({
     subscription: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "subscription",
-        default: '676a9a598d28c651357217c3',
+        default: '67a24c8b4c9399dd5c5f037d',
     },
     subscriptionBegan: Date,
     subscriptionEnd: Date,

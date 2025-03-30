@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require("path");
-
+const parsePhoneNumber = require('libphonenumber-js')
 const sharp = require("sharp");
 const bcrypt = require("bcryptjs");
 
@@ -15,6 +15,7 @@ const ApiFeatures = require("../utils/apiFeatures");
 const UserModel = require("../models/userModel");
 const SubscriptionModel = require("../models/subscriptionModel");
 const AppControlModel = require("../models/appControlModel");
+const axios = require('axios');
 
 exports.setProfileID = asyncHandler(async (req, res, next) => {
     req.params.id = req.loggedUser._id;
@@ -263,24 +264,57 @@ exports.subscribeAccount = asyncHandler(async (req, res, next) => {
     const subscriptionPlan = await SubscriptionModel.findById(subscriptionId);
     const user = await UserModel.findById(req.loggedUser._id);
 
-    if (user.subscription && user["subscription"]._id.toString() !== '676a9a598d28c651357217c3') {
+    if (user.subscription._id.toString() !== '67a24c8b4c9399dd5c5f037d') {
         return next(new ApiError(`you are already subscribed to plan ${user.subscription.name[getLocale(req)]}`, 400))
-    } else {
-        // todo: making checkout subscribe to plan and if confirm payment doing subscription
-        // subscribe
-        user.subscription = subscriptionId;
-        user.subscriptionBegan = Date.now();
-        user.subscriptionEnd = new Date().setDate(new Date().getDate() + subscriptionPlan["duration"]);
-
-        await user.save();
     }
+    const requestURL = 'https://api-sa.myfatoorah.com/v2/SendPayment'; 
+    const requestHeader = {
+        headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${process.env.PAYMENT_TOKEN_LIVE}`,
+            'Content-Type': 'application/json'
+        }
+    }
+        let phone_number = parsePhoneNumber(user["phone"]);
 
-    return res.status(200).json(
-        apiSuccess(
-            res.__("successSubscribeAccount"),
-            200,
-            null
-        ));
+        const requestBody = {
+            CustomerName: user["name"],
+            InvoiceValue: subscriptionPlan["price"],
+            NotificationOption: 'ALL',
+            DisplayCurrencyIso: 'SAR',
+            MobileCountryCode: `+${phone_number.countryCallingCode}`,
+            CustomerMobile: phone_number.nationalNumber,
+            CallBackUrl: 'https://khezanatalkutub.com/Subscription', 
+            ErrorUrl: 'https://khezanatalkutub.com',
+            CustomerEmail : user["email"] ?? "empty@empty.com",
+            Language: getLocale(req),
+            InvoiceItems: [{
+                ItemName : subscriptionPlan["name"][getLocale(req)],
+                Quantity : 1,
+                UnitPrice : subscriptionPlan["price"],
+            }],
+        }
+        const myFatoorahRequest = await axios.post(requestURL ,requestBody ,requestHeader  );
+        return res.status(200).json(
+            apiSuccess(
+                "Checkout Success",
+                200,
+                {checkout: myFatoorahRequest.data.Data},
+            )
+        );
+        // user.subscription = subscriptionId;
+        // user.subscriptionBegan = Date.now();
+        // user.subscriptionEnd = new Date().setDate(new Date().getDate() + subscriptionPlan["duration"]);
+        // await user.save();
+        // move it to web-hook 
+
+    // return res.status(200).json(
+    //     apiSuccess(
+    //         res.__("successSubscribeAccount"),
+    //         200,
+    //         null
+    //     ));
+
 });
 
 exports.unsubscribeAccount = asyncHandler(async (req, res, next) => {
@@ -295,10 +329,10 @@ exports.unsubscribeAccount = asyncHandler(async (req, res, next) => {
     if (!user["allowUnsubscribe"]) {
         return next(new ApiError(res.__("notAllowUnsubscribe"), 400))
     } else {
-        // todo: refund
+        // todo: refund still make it or not 
 
         await UserModel.findByIdAndUpdate(req.loggedUser._id, {
-            subscription: '676a9a598d28c651357217c3',
+            subscription: '67a24c8b4c9399dd5c5f037d',
             subscriptionBegan: null,
             subscriptionEnd: null,
         });

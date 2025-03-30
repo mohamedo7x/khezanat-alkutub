@@ -69,7 +69,7 @@ if (process.env.NODE_ENV === "development") {
     console.log(`mode: ${process.env.NODE_ENV}`);
 }
 
-app.post("/order-webhook-checkout", express.raw({type: 'application/json'}), orderWebhookCheckout);
+
 app.use((err, req, res, next) => {
     if (err.type === 'entity.too.large') {
         return next(new ApiError('Payload exceeds 40 MB limit', 413))
@@ -88,6 +88,7 @@ mountRoutes(app);
 app.get("/api/v1", (req, res) => {
     res.send(`<h1>Welcome In Khezanat Alkutub App</h1>`);
 });
+app.post("/order-webhook-checkout", express.raw({type: 'application/json'}), orderWebhookCheckout);
 cron.schedule('*/60 * * * *' , async()=>{
     const twoMinutesAgo = new Date(Date.now() - 60 * 60 * 1000); 
     await User.deleteMany({

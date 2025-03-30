@@ -10,7 +10,7 @@ exports.allowedToUser = () => asyncHandler(async (req, res, next) => {
     if (!user) {
         req.allowError = true;
     } else {
-        if (user["subscription"]._id.toString() === '676a9a598d28c651357217c3') {
+        if (user["subscription"]._id.toString() === '67a24c8b4c9399dd5c5f037d') {
             req.allowSuccess = true;
         } else {
             const inputDate = new Date(user["subscriptionEnd"]);
